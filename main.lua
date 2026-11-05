@@ -7,6 +7,8 @@ function love.load()
      local PADDLE_HEIGHT = 100
      local BALL_SIZE = 20
 
+     score1 = 0
+     score2 = 0
 
     player1 = {
         x = 50,
@@ -29,6 +31,9 @@ function love.load()
         y = 300 - BALL_SIZE/2 ,
         size =BALL_SIZE
     }
+    ball.dx = 200 
+    ball.dy = 200
+
 end
 
 function love.draw ()
@@ -56,6 +61,28 @@ love.graphics.rectangle("fill",
     ball.size,
     ball.size
 )
+
+local scoreFont = love.graphics.newFont(40)
+love.graphics.setFont(scoreFont)
+
+love.graphics.print(score1,300,50)
+love.graphics.print(score2,470,50)
+
+end
+
+local function chackCollision (ball,paddle)
+    return ball.x<=paddle.x + paddle.width and 
+    ball.x + ball.size >= paddle.x and 
+    ball.y <= paddle.y + paddle.height and 
+    ball.y + ball.size >= paddle.y
+  
+end
+local function resetBall()
+    ball.x = 400 - ball.size / 2
+    ball.y = 300 - ball.size / 2
+
+    ball.dx = 150 * (math.random(2) == 1 and 1 or -1)
+    ball.dy = 150 * (math.random(2) == 1 and 1 or -1)
 end
 
 function love.update(dt)
@@ -81,4 +108,40 @@ end
         0,
         math.min(player2.y, 600 - player2.height)
     )
+    -- move  ball :)
+
+    ball.x = ball.x + ball.dx * dt 
+    ball.y = ball.y + ball.dy * dt
+    if ball.y <=0 then 
+        ball.y = 0
+        ball.dy = -ball.dy
+        elseif ball.y + ball.size>=600 then
+            ball.y= 600 - ball.size
+            ball.dy = -ball.dy 
+
+            end
+
+           
+            if ball.dx < 0 and chackCollision(ball, player1) then
+            ball.x = player1.x + player1.width
+            ball.dx = math.abs(ball.dx) * 1.05
+end
+
+
+            if ball.dx > 0 and chackCollision(ball, player2) then
+            ball.x = player2.x - ball.size
+            ball.dx = -math.abs(ball.dx) * 1.05
+end
+
+            if ball.x + ball.size < 0 then
+            score2 = score2 + 1
+            resetBall()
+
+            elseif ball.x > 800 then
+            score1 = score1 + 1
+            resetBall()
+end
+
+
 end 
+
